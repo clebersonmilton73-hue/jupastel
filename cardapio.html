@@ -1,0 +1,855 @@
+
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Jupastel e Salgados — Pedidos</title>
+  <style>
+    :root{
+      --g:#0f7a3a; --g2:#0a5a2b;
+      --y:#ffd34d; --y2:#ffb703;
+      --bg:#f7fff2; --card:#fff;
+      --ink:#161616; --muted:#5b5b5b;
+      --shadow:0 12px 28px rgba(0,0,0,.12);
+      --r:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; color:var(--ink);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(900px 650px at 12% 0%, rgba(255,211,77,.45), transparent 60%),
+        radial-gradient(900px 650px at 95% 12%, rgba(15,122,58,.30), transparent 55%),
+        linear-gradient(180deg, #fff8e6 0%, var(--bg) 100%);
+      min-height:100vh;
+    }
+    .wrap{max-width:1120px;margin:0 auto;padding:18px}
+    header{
+      background:linear-gradient(135deg,var(--g),var(--g2));
+      border-radius:22px; box-shadow:var(--shadow);
+      padding:18px; position:relative; overflow:hidden;
+    }
+    header:before{
+      content:""; position:absolute; right:-120px; top:-140px;
+      width:360px;height:360px;border-radius:999px;
+      background:radial-gradient(circle at 30% 30%, rgba(255,211,77,.95), rgba(255,211,77,.15) 60%, transparent 70%);
+      transform:rotate(20deg);
+    }
+    .top{position:relative;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{
+      width:54px;height:54px;border-radius:16px;
+      background:linear-gradient(135deg,var(--y),var(--y2));
+      display:grid;place-items:center;font-size:28px;
+      box-shadow:0 10px 18px rgba(0,0,0,.20);
+    }
+    .brand h1{margin:0;color:#fff;font-size:clamp(20px,2.6vw,30px);font-weight:900;line-height:1.05}
+    .brand p{margin:6px 0 0;color:rgba(255,255,255,.9);font-weight:650;font-size:13px}
+    .pill{
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.18);
+      color:#fff; padding:10px 12px;border-radius:999px;
+      font-weight:800;font-size:13px; backdrop-filter: blur(6px);
+      display:flex;align-items:center;gap:8px;
+    }
+
+    /* Tabs */
+    .tabs{
+      margin-top:14px;
+      display:flex; gap:10px; flex-wrap:wrap;
+      position:relative;
+    }
+    .tabbtn{
+      border:none; cursor:pointer;
+      padding:10px 14px;border-radius:999px;
+      font-weight:900;
+      background:rgba(255,255,255,.14);
+      border:1px solid rgba(255,255,255,.18);
+      color:#fff;
+    }
+    .tabbtn.active{
+      background:linear-gradient(135deg,var(--y2),var(--y));
+      color:#111;
+      border:1px solid rgba(0,0,0,.08);
+      box-shadow:0 12px 22px rgba(255,183,3,.18);
+    }
+
+    /* Layout blocks */
+    .grid{
+      margin-top:16px;
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:16px;
+      align-items:start;
+    }
+    @media (max-width: 920px){ .grid{grid-template-columns:1fr} }
+
+    .card{
+      background:var(--card);
+      border-radius:var(--r);
+      box-shadow:var(--shadow);
+      border:1px solid rgba(15,122,58,.10);
+      overflow:hidden;
+    }
+    .hd{
+      padding:14px 16px;
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      background:linear-gradient(180deg, rgba(15,122,58,.06), rgba(255,211,77,.18));
+      border-bottom:1px solid rgba(0,0,0,.06);
+    }
+    .hd h2{
+      margin:0; color:var(--g2);
+      font-size:16px; font-weight:950;
+      display:flex; align-items:center; gap:10px;
+    }
+    .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--y),var(--y2));box-shadow:0 4px 10px rgba(0,0,0,.14)}
+    .body{padding:14px 16px}
+
+    .muted{color:var(--muted);font-size:12px;line-height:1.35}
+    .small{font-size:12px}
+
+    .btn{
+      border:none; cursor:pointer;
+      padding:10px 12px;border-radius:14px;
+      font-weight:900;
+      display:inline-flex;align-items:center;gap:8px;
+      user-select:none;
+    }
+    .btn-add{background:linear-gradient(135deg,var(--g),var(--g2));color:#fff;box-shadow:0 10px 18px rgba(15,122,58,.20)}
+    .btn-ghost{background:rgba(0,0,0,.05);color:var(--ink)}
+    .btn-warn{background:linear-gradient(135deg,#ff5a5a,#d81b1b);color:#fff}
+
+    .inp{
+      padding:10px;border-radius:12px;
+      border:1px solid rgba(0,0,0,.18);
+      outline:none;font-size:14px;width:100%;
+    }
+    .stack{display:flex;flex-direction:column;gap:8px}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    @media(max-width:520px){ .two{grid-template-columns:1fr} }
+
+    /* Menu items */
+    .search{
+      margin-top:12px;
+      display:flex;align-items:center;gap:10px;
+      background:#fff;border-radius:999px;
+      padding:10px 12px;
+      box-shadow:0 10px 18px rgba(0,0,0,.12);
+      min-width:min(520px,100%);
+      position:relative;
+    }
+    .search input{border:none;outline:none;width:100%;font-size:15px}
+
+    .list{padding:14px 16px; display:flex; flex-direction:column; gap:10px}
+    .item{
+      display:flex; gap:12px; align-items:center;
+      border:1px solid rgba(0,0,0,.07);
+      border-radius:16px; padding:12px;
+      background:#fff;
+    }
+    .item .info{flex:1;min-width:0}
+    .item .name{font-weight:900}
+    .item .cat{color:var(--muted);font-size:12px;margin-top:3px}
+    .item .price{font-weight:950;color:var(--g2);white-space:nowrap}
+
+    /* Cart */
+    .cart{position:sticky; top:16px}
+    .cartline{
+      display:flex; gap:10px; align-items:center; justify-content:space-between;
+      padding:10px 0;
+      border-bottom:1px dashed rgba(0,0,0,.14);
+    }
+    .cartline:last-child{border-bottom:none}
+    .ctxt{flex:1;min-width:0}
+    .ctxt .t{font-weight:900}
+    .ctxt .s{color:var(--muted);font-size:12px;margin-top:2px}
+    .qty{display:flex;align-items:center;gap:8px;white-space:nowrap}
+    .qty button{
+      width:34px;height:34px;border-radius:12px;
+      border:1px solid rgba(0,0,0,.10);
+      background:#fff;cursor:pointer;font-weight:900;
+    }
+    .totalbox{
+      margin-top:12px;
+      background:linear-gradient(180deg, rgba(255,211,77,.30), rgba(15,122,58,.07));
+      border:1px solid rgba(0,0,0,.08);
+      border-radius:16px;
+      padding:12px;
+    }
+    .row{display:flex;justify-content:space-between;gap:10px;margin:6px 0}
+    .row strong{color:var(--g2)}
+    .checkout{
+      margin-top:12px;width:100%;justify-content:center;
+      background:linear-gradient(135deg,var(--y2),var(--y));
+      color:#1b1b1b;box-shadow:0 12px 22px rgba(255,183,3,.22);
+      padding:12px 14px;
+    }
+
+    /* Admin list */
+    .admin-grid{
+      margin-top:16px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:16px;
+    }
+    .orders{
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .order{
+      border:1px solid rgba(0,0,0,.08);
+      border-radius:16px;
+      padding:12px;
+      background:#fff;
+    }
+    .order-top{
+      display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;
+    }
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;
+      font-weight:900;font-size:12px;
+      border:1px solid rgba(0,0,0,.10);
+      background:#f6f6f6;
+    }
+    .badge.new{background:rgba(255,183,3,.25)}
+    .badge.progress{background:rgba(15,122,58,.12)}
+    .badge.done{background:rgba(0,180,100,.15)}
+    .badge.cancel{background:rgba(255,90,90,.18)}
+    .order-actions{
+      display:flex;gap:8px;flex-wrap:wrap;margin-top:10px
+    }
+
+    .hidden{display:none !important}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="top">
+      <div class="brand">
+        <div class="logo">🥟</div>
+        <div>
+          <h1>Jupastel e Salgados</h1>
+          <p>Pedidos Online + Área Admin</p>
+        </div>
+      </div>
+      <div class="pill">📲 WhatsApp: (81) 99660-4169</div>
+    </div>
+
+    <div class="tabs">
+      <button class="tabbtn active" id="tabClienteBtn">🛒 Cliente</button>
+      <button class="tabbtn" id="tabAdminBtn">🛠️ Admin</button>
+    </div>
+
+    <div class="search" id="searchBox">
+      🔎 <input id="q" type="text" placeholder="Buscar no cardápio… (ex: frango, queijo, combo)" />
+    </div>
+  </header>
+
+  <!-- ================== ABA CLIENTE ================== -->
+  <section id="tabCliente">
+    <div class="grid">
+      <!-- CARDÁPIO -->
+      <section class="card">
+        <div class="hd">
+          <h2><span class="dot"></span> Cardápio</h2>
+          <button class="btn btn-ghost" onclick="window.print()">🖨️ Imprimir</button>
+        </div>
+        <div class="list" id="menu"></div>
+      </section>
+
+      <!-- LADO DIREITO -->
+      <aside>
+        <!-- CADASTRO -->
+        <section class="card" style="margin-bottom:15px">
+          <div class="hd">
+            <h2><span class="dot"></span> Cadastro do Cliente</h2>
+            <button class="btn btn-ghost" id="saveClientBtn">💾 Salvar</button>
+          </div>
+          <div class="body">
+            <div class="stack">
+              <input id="clienteNome" class="inp" placeholder="Nome completo" />
+              <div class="two">
+                <input id="clienteTelefone" class="inp" placeholder="Telefone" />
+                <input id="clienteCpf" class="inp" placeholder="CPF (opcional)" />
+              </div>
+              <input id="clienteEndereco" class="inp" placeholder="Endereço (Rua, Nº, Bairro)" />
+              <select id="clientePagamento" class="inp">
+                <option value="">Forma de pagamento</option>
+                <option>Dinheiro</option>
+                <option>Cartão</option>
+                <option>Pix</option>
+              </select>
+              <div class="muted">Os dados ficam salvos neste aparelho/navegador.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- CARRINHO -->
+        <section class="card cart">
+          <div class="hd">
+            <h2><span class="dot"></span> Seu Carrinho</h2>
+            <button class="btn btn-ghost" id="clearBtn">🧹 Limpar</button>
+          </div>
+          <div class="body">
+            <div id="cartEmpty" class="muted">
+              Seu carrinho está vazio. Clique em <strong>Adicionar</strong> no cardápio.
+            </div>
+            <div id="cartLines"></div>
+
+            <div class="totalbox">
+              <div class="row"><span>Itens</span><strong id="itemsCount">0</strong></div>
+              <div class="row"><span>Total</span><strong id="totalPrice">R$ 0,00</strong></div>
+              <div class="muted small">Ao finalizar, o pedido vai para o WhatsApp e também entra no Admin.</div>
+            </div>
+
+            <button class="btn checkout" id="checkoutBtn">✅ Finalizar no WhatsApp</button>
+
+            <button class="btn btn-ghost" id="reciboBtn" style="width:100%;justify-content:center;margin-top:10px;">
+              🧾 Gerar comprovante do pedido
+            </button>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================== ABA ADMIN ================== -->
+  <section id="tabAdmin" class="hidden">
+    <div class="admin-grid">
+      <section class="card">
+        <div class="hd">
+          <h2><span class="dot"></span> Admin — Pedidos</h2>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-ghost" id="exportBtn">⬇️ Exportar JSON</button>
+            <button class="btn btn-warn" id="clearOrdersBtn">🗑️ Limpar tudo</button>
+          </div>
+        </div>
+        <div class="body">
+          <div class="two">
+            <input id="adminSearch" class="inp" placeholder="Buscar por nome, telefone, ID, status..." />
+            <select id="adminFilter" class="inp">
+              <option value="">Filtrar: Todos</option>
+              <option value="Novo">Novo</option>
+              <option value="Em preparo">Em preparo</option>
+              <option value="Saiu para entrega">Saiu para entrega</option>
+              <option value="Finalizado">Finalizado</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+          </div>
+
+          <div style="margin-top:10px" class="muted">
+            Dica: pedidos ficam salvos neste navegador. Se trocar de PC/celular, não aparece.
+          </div>
+
+          <div style="margin-top:14px" class="orders" id="orders"></div>
+        </div>
+      </section>
+    </div>
+  </section>
+</div>
+
+<script>
+  // ================= CONFIG =================
+  const WHATSAPP_NUMBER = "5581996604169";
+  const LS_CLIENTE = "clienteJupastel";
+  const LS_ORDERS = "jupastel_orders_v1";
+
+  const products = [
+    {id:"t1", name:"Pastel de Carne", price:12.00, category:"Pastéis Tradicionais"},
+    {id:"t2", name:"Pastel de Frango", price:12.00, category:"Pastéis Tradicionais"},
+    {id:"t3", name:"Pastel de Queijo", price:12.00, category:"Pastéis Tradicionais"},
+    {id:"t4", name:"Pastel de Pizza", price:13.00, category:"Pastéis Tradicionais"},
+    {id:"t5", name:"Pastel de Calabresa", price:13.00, category:"Pastéis Tradicionais"},
+    {id:"t6", name:"Pastel de Carne com Queijo", price:14.00, category:"Pastéis Tradicionais"},
+    {id:"e1", name:"Pastel Frango com Catupiry", price:15.00, category:"Pastéis Especiais"},
+    {id:"e2", name:"Pastel Carne Especial", price:16.00, category:"Pastéis Especiais"},
+    {id:"e3", name:"Pastel 4 Queijos", price:16.00, category:"Pastéis Especiais"},
+    {id:"e4", name:"Pastel Portuguesa", price:16.00, category:"Pastéis Especiais"},
+    {id:"e5", name:"Pastel Camarão", price:18.00, category:"Pastéis Especiais"},
+    {id:"d1", name:"Pastel de Chocolate", price:12.00, category:"Pastéis Doces"},
+    {id:"d2", name:"Pastel Chocolate com Morango", price:14.00, category:"Pastéis Doces"},
+    {id:"d3", name:"Pastel Banana com Canela", price:12.00, category:"Pastéis Doces"},
+    {id:"d4", name:"Pastel Romeu e Julieta", price:13.00, category:"Pastéis Doces"},
+    {id:"c1", name:"Combo 5 Pastéis Tradicionais", price:55.00, category:"Combos"},
+    {id:"c2", name:"Combo 10 Pastéis Tradicionais", price:100.00, category:"Combos"},
+    {id:"c3", name:"Combo Casal (4 Pastéis + Refri 2L)", price:60.00, category:"Combos"},
+  ];
+
+  // ================= HELPERS =================
+  const brl = (v) => v.toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+  const getProduct = (id) => products.find(p => p.id === id);
+  const nowBR = () => new Date().toLocaleString("pt-BR");
+
+  function gerarIdPedido(){
+    const d = new Date();
+    const pad = (n)=> String(n).padStart(2,"0");
+    return `JP${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+  }
+
+  function groupByCategory(list){
+    const groups = {};
+    for (const p of list){ (groups[p.category] ||= []).push(p); }
+    return groups;
+  }
+
+  // ================== TABS ==================
+  const tabClienteBtn = document.getElementById("tabClienteBtn");
+  const tabAdminBtn = document.getElementById("tabAdminBtn");
+  const tabCliente = document.getElementById("tabCliente");
+  const tabAdmin = document.getElementById("tabAdmin");
+  const searchBox = document.getElementById("searchBox");
+
+  function showTab(which){
+    const isCliente = which === "cliente";
+    tabCliente.classList.toggle("hidden", !isCliente);
+    tabAdmin.classList.toggle("hidden", isCliente);
+    tabClienteBtn.classList.toggle("active", isCliente);
+    tabAdminBtn.classList.toggle("active", !isCliente);
+    searchBox.classList.toggle("hidden", !isCliente);
+    if(!isCliente) renderAdminOrders();
+  }
+  tabClienteBtn.onclick = ()=> showTab("cliente");
+  tabAdminBtn.onclick = ()=> showTab("admin");
+
+  // ================== CLIENTE: ELEMENTOS ==================
+  const elMenu = document.getElementById("menu");
+  const elQ = document.getElementById("q");
+  const elCartLines = document.getElementById("cartLines");
+  const elCartEmpty = document.getElementById("cartEmpty");
+  const elItemsCount = document.getElementById("itemsCount");
+  const elTotalPrice = document.getElementById("totalPrice");
+  const elCheckoutBtn = document.getElementById("checkoutBtn");
+  const elClearBtn = document.getElementById("clearBtn");
+  const elReciboBtn = document.getElementById("reciboBtn");
+
+  // Cadastro
+  const elNome = document.getElementById("clienteNome");
+  const elTelefone = document.getElementById("clienteTelefone");
+  const elCpf = document.getElementById("clienteCpf");
+  const elEndereco = document.getElementById("clienteEndereco");
+  const elPagamento = document.getElementById("clientePagamento");
+  const elSaveClientBtn = document.getElementById("saveClientBtn");
+
+  // Carrinho
+  const cart = new Map();
+
+  function totals(){
+    let items = 0, total = 0;
+    for (const [id, qty] of cart.entries()){
+      const p = getProduct(id);
+      items += qty;
+      total += p.price * qty;
+    }
+    return {items, total};
+  }
+
+  // ================== CLIENTE: CADASTRO ==================
+  function salvarCliente(){
+    const cliente = {
+      nome: elNome.value || "",
+      telefone: elTelefone.value || "",
+      cpf: elCpf.value || "",
+      endereco: elEndereco.value || "",
+      pagamento: elPagamento.value || ""
+    };
+    localStorage.setItem(LS_CLIENTE, JSON.stringify(cliente));
+    alert("Cadastro salvo!");
+  }
+  function carregarCliente(){
+    const data = localStorage.getItem(LS_CLIENTE);
+    if(!data) return;
+    const c = JSON.parse(data);
+    elNome.value = c.nome || "";
+    elTelefone.value = c.telefone || "";
+    elCpf.value = c.cpf || "";
+    elEndereco.value = c.endereco || "";
+    elPagamento.value = c.pagamento || "";
+  }
+  elSaveClientBtn.onclick = salvarCliente;
+  carregarCliente();
+
+  // ================== CLIENTE: MENU ==================
+  function renderMenu(){
+    const q = (elQ.value || "").trim().toLowerCase();
+    const filtered = products.filter(p =>
+      !q || (p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q))
+    );
+    const groups = groupByCategory(filtered);
+
+    elMenu.innerHTML = Object.keys(groups).map(cat => {
+      const items = groups[cat].map(p => `
+        <div class="item">
+          <div class="info">
+            <div class="name">${p.name}</div>
+            <div class="cat">${cat}</div>
+          </div>
+          <div class="price">${brl(p.price)}</div>
+          <button class="btn btn-add" data-add="${p.id}">➕ Adicionar</button>
+        </div>
+      `).join("");
+      return `
+        <div style="margin-bottom:10px">
+          <div style="font-weight:950;color:#0a5a2b;margin:10px 0 8px">${cat}</div>
+          ${items}
+        </div>
+      `;
+    }).join("") || `<div class="muted">Nada encontrado. Tente outra busca.</div>`;
+
+    document.querySelectorAll("[data-add]").forEach(btn => {
+      btn.onclick = () => addToCart(btn.getAttribute("data-add"));
+    });
+  }
+  elQ.addEventListener("input", renderMenu);
+
+  // ================== CLIENTE: CARRINHO ==================
+  function addToCart(id){ cart.set(id, (cart.get(id)||0) + 1); renderCart(); }
+  function incCart(id){ cart.set(id, (cart.get(id)||0) + 1); renderCart(); }
+  function decCart(id){
+    const q = cart.get(id)||0;
+    if(q<=1) cart.delete(id); else cart.set(id,q-1);
+    renderCart();
+  }
+  function clearCart(){ cart.clear(); renderCart(); }
+
+  function renderCart(){
+    const {items, total} = totals();
+    elItemsCount.textContent = items;
+    elTotalPrice.textContent = brl(total);
+
+    if(items===0){
+      elCartEmpty.style.display = "block";
+      elCartLines.innerHTML = "";
+      return;
+    }
+    elCartEmpty.style.display = "none";
+
+    elCartLines.innerHTML = [...cart.entries()].map(([id, qty])=>{
+      const p = getProduct(id);
+      const sub = p.price * qty;
+      return `
+        <div class="cartline">
+          <div class="ctxt">
+            <div class="t">${p.name}</div>
+            <div class="s">${p.category} • ${brl(p.price)} cada • Subtotal: ${brl(sub)}</div>
+          </div>
+          <div class="qty">
+            <button onclick="decCart('${id}')">−</button>
+            <strong>${qty}</strong>
+            <button onclick="incCart('${id}')">+</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+  // expor pro onclick inline
+  window.incCart = incCart;
+  window.decCart = decCart;
+
+  elClearBtn.onclick = clearCart;
+
+  // ================== PEDIDOS (SALVAR / ADMIN) ==================
+  function loadOrders(){
+    try{ return JSON.parse(localStorage.getItem(LS_ORDERS) || "[]"); }
+    catch{ return []; }
+  }
+  function saveOrders(arr){
+    localStorage.setItem(LS_ORDERS, JSON.stringify(arr));
+  }
+  function addOrder(order){
+    const orders = loadOrders();
+    orders.unshift(order);
+    saveOrders(orders);
+  }
+
+  function buildWhatsAppMessage(order){
+    const lines = order.items.map(i => `• ${i.qty}x ${i.name} (${brl(i.unit)})`).join("\n");
+    return (
+`Olá! Quero fazer um pedido na *Jupastel e Salgados* 👇
+
+Pedido: *${order.id}*
+Data: ${order.createdAt}
+
+${lines}
+
+*Total:* ${brl(order.total)}
+
+👤 Nome: ${order.customer.nome || "-"}
+📞 Telefone: ${order.customer.telefone || "-"}
+📍 Endereço: ${order.customer.endereco || "-"}
+💳 Pagamento: ${order.customer.pagamento || "-"}`
+    );
+  }
+
+  function checkout(){
+    const {items, total} = totals();
+    if(items===0){ alert("Carrinho vazio 🙂"); return; }
+
+    const orderId = gerarIdPedido();
+    const customer = {
+      nome: (elNome.value||"").trim(),
+      telefone: (elTelefone.value||"").trim(),
+      cpf: (elCpf.value||"").trim(),
+      endereco: (elEndereco.value||"").trim(),
+      pagamento: (elPagamento.value||"").trim(),
+    };
+
+    const orderItems = [...cart.entries()].map(([pid, qty])=>{
+      const p = getProduct(pid);
+      return { pid, qty, name:p.name, unit:p.price, sub:p.price*qty, category:p.category };
+    });
+
+    const order = {
+      id: orderId,
+      createdAt: nowBR(),
+      status: "Novo",
+      total,
+      customer,
+      items: orderItems
+    };
+
+    // salva no Admin
+    addOrder(order);
+
+    // abre WhatsApp
+    const text = encodeURIComponent(buildWhatsAppMessage(order));
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${text}`, "_blank");
+
+    alert("Pedido enviado para o WhatsApp e salvo no Admin ✅");
+  }
+  elCheckoutBtn.onclick = checkout;
+
+  // ================== RECIBO (COMPROVANTE DA LOJA) ==================
+  function abrirComprovanteLoja(order){
+    const itensHtml = order.items.map(i => `
+      <tr>
+        <td style="padding:8px;border-bottom:1px solid #ddd">${i.qty}x</td>
+        <td style="padding:8px;border-bottom:1px solid #ddd">${i.name}</td>
+        <td style="padding:8px;border-bottom:1px solid #ddd">${brl(i.unit)}</td>
+        <td style="padding:8px;border-bottom:1px solid #ddd">${brl(i.sub)}</td>
+      </tr>
+    `).join("");
+
+    const html = `
+<!doctype html><html lang="pt-br"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Comprovante do Pedido</title>
+<style>
+  body{font-family:Arial,sans-serif;margin:20px;color:#111}
+  .box{max-width:780px;margin:0 auto;border:1px solid #ddd;border-radius:14px;padding:16px}
+  h1{margin:0 0 6px}
+  .muted{color:#555;font-size:12px}
+  table{width:100%;border-collapse:collapse;margin-top:12px}
+  th{background:#f2f2f2;text-align:left;padding:8px;border-bottom:1px solid #ddd}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .pill{display:inline-block;background:#f7f7f7;border:1px solid #ddd;border-radius:999px;padding:6px 10px;font-weight:bold}
+  .total{font-size:18px;font-weight:900;margin-top:10px}
+  .warn{margin-top:12px;background:#fff7e6;border:1px dashed #f0b100;padding:10px;border-radius:12px}
+  @media print{button{display:none}}
+</style></head><body>
+<div class="box">
+  <div class="row" style="align-items:center;justify-content:space-between">
+    <div>
+      <h1>🧾 Comprovante do Pedido</h1>
+      <div class="muted">Jupastel e Salgados • Emitido em: ${nowBR()}</div>
+    </div>
+    <div class="pill">Pedido: ${order.id}</div>
+  </div>
+
+  <div style="margin-top:10px" class="row">
+    <div><strong>Cliente:</strong> ${order.customer.nome || "—"}</div>
+    <div><strong>Telefone:</strong> ${order.customer.telefone || "—"}</div>
+    <div><strong>CPF:</strong> ${order.customer.cpf || "—"}</div>
+    <div style="flex:1 1 100%"><strong>Endereço:</strong> ${order.customer.endereco || "—"}</div>
+    <div><strong>Pagamento:</strong> ${order.customer.pagamento || "—"}</div>
+    <div><strong>Status:</strong> ${order.status}</div>
+  </div>
+
+  <table>
+    <thead><tr><th>Qtd</th><th>Item</th><th>Unit.</th><th>Subtotal</th></tr></thead>
+    <tbody>${itensHtml}</tbody>
+  </table>
+
+  <div class="total">Total: ${brl(order.total)}</div>
+
+  <div class="warn">
+    <strong>Atenção:</strong> este é um <u>comprovante do pedido da loja</u>.
+    Confirme o pagamento no app/banco antes de liberar o pedido.
+  </div>
+
+  <button onclick="window.print()" style="margin-top:12px;padding:10px 14px;font-weight:900;border-radius:12px;border:1px solid #ddd;background:#fff;cursor:pointer">
+    🖨️ Imprimir / Salvar em PDF
+  </button>
+</div>
+</body></html>
+    `;
+    const w = window.open("", "_blank");
+    w.document.open(); w.document.write(html); w.document.close();
+  }
+
+  elReciboBtn.onclick = () => {
+    const {items, total} = totals();
+    if(items===0){ alert("Carrinho vazio 🙂"); return; }
+
+    // gera recibo do que está no carrinho (sem salvar pedido)
+    const orderId = gerarIdPedido();
+    const customer = {
+      nome:(elNome.value||"").trim(),
+      telefone:(elTelefone.value||"").trim(),
+      cpf:(elCpf.value||"").trim(),
+      endereco:(elEndereco.value||"").trim(),
+      pagamento:(elPagamento.value||"").trim(),
+    };
+    const orderItems = [...cart.entries()].map(([pid, qty])=>{
+      const p = getProduct(pid);
+      return { pid, qty, name:p.name, unit:p.price, sub:p.price*qty, category:p.category };
+    });
+    abrirComprovanteLoja({id:orderId, createdAt:nowBR(), status:"Novo", total, customer, items:orderItems});
+  };
+
+  // ================== ADMIN ==================
+  const elOrders = document.getElementById("orders");
+  const adminSearch = document.getElementById("adminSearch");
+  const adminFilter = document.getElementById("adminFilter");
+  const exportBtn = document.getElementById("exportBtn");
+  const clearOrdersBtn = document.getElementById("clearOrdersBtn");
+
+  function statusBadgeClass(s){
+    if(s==="Novo") return "new";
+    if(s==="Em preparo" || s==="Saiu para entrega") return "progress";
+    if(s==="Finalizado") return "done";
+    if(s==="Cancelado") return "cancel";
+    return "";
+  }
+
+  function setOrderStatus(id, status){
+    const orders = loadOrders();
+    const o = orders.find(x=>x.id===id);
+    if(!o) return;
+    o.status = status;
+    saveOrders(orders);
+    renderAdminOrders();
+  }
+
+  function deleteOrder(id){
+    let orders = loadOrders();
+    orders = orders.filter(x=>x.id!==id);
+    saveOrders(orders);
+    renderAdminOrders();
+  }
+
+  function renderAdminOrders(){
+    const q = (adminSearch.value||"").trim().toLowerCase();
+    const f = (adminFilter.value||"").trim();
+
+    let orders = loadOrders();
+    if(f) orders = orders.filter(o=>o.status===f);
+
+    if(q){
+      orders = orders.filter(o=>{
+        const blob = [
+          o.id, o.status, o.createdAt,
+          o.customer?.nome, o.customer?.telefone, o.customer?.endereco, o.customer?.pagamento,
+          ...(o.items||[]).map(i=>i.name)
+        ].join(" ").toLowerCase();
+        return blob.includes(q);
+      });
+    }
+
+    if(orders.length===0){
+      elOrders.innerHTML = `<div class="muted">Nenhum pedido encontrado.</div>`;
+      return;
+    }
+
+    elOrders.innerHTML = orders.map(o=>{
+      const badgeCls = statusBadgeClass(o.status);
+      const itemsShort = (o.items||[]).slice(0,3).map(i=>`${i.qty}x ${i.name}`).join(" • ");
+      const more = (o.items||[]).length>3 ? ` (+${(o.items||[]).length-3} itens)` : "";
+
+      return `
+        <div class="order">
+          <div class="order-top">
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="font-weight:950">Pedido ${o.id}</div>
+              <div class="muted">${o.createdAt} • ${o.customer?.nome || "—"} • ${o.customer?.telefone || "—"}</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+              <span class="badge ${badgeCls}">📌 ${o.status}</span>
+              <span class="badge">💰 ${brl(o.total)}</span>
+            </div>
+          </div>
+
+          <div class="muted" style="margin-top:8px">
+            ${itemsShort}${more}
+          </div>
+
+          <div class="order-actions">
+            <button class="btn btn-ghost" onclick="adminView('${o.id}')">👁️ Ver</button>
+            <button class="btn btn-ghost" onclick="adminReceipt('${o.id}')">🧾 Recibo</button>
+            <button class="btn btn-add" onclick="adminStatus('${o.id}','Em preparo')">🍳 Em preparo</button>
+            <button class="btn btn-add" onclick="adminStatus('${o.id}','Saiu para entrega')">🛵 Saiu</button>
+            <button class="btn btn-add" onclick="adminStatus('${o.id}','Finalizado')">✅ Finalizar</button>
+            <button class="btn btn-warn" onclick="adminStatus('${o.id}','Cancelado')">⛔ Cancelar</button>
+            <button class="btn btn-warn" onclick="adminDelete('${o.id}')">🗑️ Apagar</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  // admin actions global
+  window.adminStatus = (id, st)=> setOrderStatus(id, st);
+  window.adminDelete = (id)=> {
+    if(confirm("Apagar este pedido?")) deleteOrder(id);
+  };
+  window.adminReceipt = (id)=> {
+    const o = loadOrders().find(x=>x.id===id);
+    if(o) abrirComprovanteLoja(o);
+  };
+  window.adminView = (id)=> {
+    const o = loadOrders().find(x=>x.id===id);
+    if(!o) return;
+    const itens = (o.items||[]).map(i=>`${i.qty}x ${i.name} (${brl(i.unit)}) = ${brl(i.sub)}`).join("\n");
+    alert(
+`Pedido: ${o.id}
+Data: ${o.createdAt}
+Status: ${o.status}
+Total: ${brl(o.total)}
+
+Cliente: ${o.customer?.nome || "-"}
+Telefone: ${o.customer?.telefone || "-"}
+Endereço: ${o.customer?.endereco || "-"}
+Pagamento: ${o.customer?.pagamento || "-"}
+
+Itens:
+${itens}`
+    );
+  };
+
+  adminSearch.addEventListener("input", renderAdminOrders);
+  adminFilter.addEventListener("change", renderAdminOrders);
+
+  exportBtn.onclick = ()=>{
+    const data = JSON.stringify(loadOrders(), null, 2);
+    const blob = new Blob([data], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "pedidos_jupastel.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  clearOrdersBtn.onclick = ()=>{
+    if(!confirm("Tem certeza que quer apagar TODOS os pedidos?")) return;
+    localStorage.removeItem(LS_ORDERS);
+    renderAdminOrders();
+  };
+
+  // ================= INIT =================
+  renderMenu();
+  renderCart();
+</script>
+</body>
+</html>
